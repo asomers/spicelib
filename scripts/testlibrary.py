@@ -579,7 +579,8 @@ class modellibrary(object):
         self.modeldir = self.index.get("GLOBAL","MODELDIR")
         self.description = self.index.get("GLOBAL","DESCRIPTION")
         self.golden_md5 = self.load_md5sums(BASE_DIR + self.index.get("GLOBAL","GOLDEN_CHECKSUMS"))
-        self.current_md5 = self.load_md5sums(BASE_DIR + self.index.get("GLOBAL","CURRENT_CHECKSUMS"))
+        self.current_md5 = self.load_sconsign()
+#        self.current_md5 = self.load_md5sums(BASE_DIR + self.index.get("GLOBAL","CURRENT_CHECKSUMS"))
 
         self.modelparts = {}
 
@@ -623,6 +624,21 @@ class modellibrary(object):
         for l in lines:
             tok = string.split(string.strip(l),"  ")
             md5[tok[1]] = tok[0]
+        return md5
+
+    def load_sconsign(self):
+        md5 = {}
+        import anydbm
+        import pickle
+        #TODO:import scons wherever it may be installed
+        #Copy code in /usr/bin/scons for finding the library
+        sys.path.append('usr/lib/scons')    
+        import SCons
+        adb = anydbm.open('.sconsign.dbm')
+        for dir in adb:
+            entry = pickle.loads(adb[dir])
+            for file in entry:
+                md5[os.path.join(dir, file)] = entry[file].ninfo.csig
         return md5
 
     def test(self, status=None, checksum=None):

@@ -25,6 +25,7 @@ import os
 import popen2
 import sys
 import re
+import anydbm
 
 sys.path.append('scripts')
 import testlibrary
@@ -39,7 +40,7 @@ PATCHDIR='model_patches'
 
 
 env = Environment(ENV = {'PATH': os.environ["PATH"]})
-
+SConsignFile('.sconsign.dbm', anydbm)
 
 #Custom builders
 def test_single(target, source, env):
